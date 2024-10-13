@@ -6,7 +6,7 @@ resource "aws_vpc" "vpc" {
   })
 }
 
-# Need a validated cert for the server
+# See if we can do this with a cert without domain validation
 resource "aws_acm_certificate" "vpn" {
   domain_name       = "aws-vpn-testing.rak.gg"
   validation_method = "DNS"
