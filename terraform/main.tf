@@ -5,12 +5,12 @@ module "vpc-with-vpn" {
   vpn_subnet_cidr = "10.120.248.0/24"
   vpn_client_cidr = "10.121.0.0/22"
 
-  vpn_client_provider_arn    = "arn:aws:iam::418272777215:saml-provider/vpn-client"
-  vpn_selfserve_provider_arn = "arn:aws:iam::418272777215:saml-provider/vpn-self-service"
+  vpn_client_provider_arn    = var.vpn_client_provider_arn
+  vpn_selfserve_provider_arn = var.vpn_selfserve_provider_arn
 
   tags = {
-    Name    = "aws-testing-cff474a1"
-    Project = "aws-testing-cff474a1"
+    Name    = var.project_name
+    Project = var.project_name
   }
 }
 
@@ -21,8 +21,8 @@ module "private_document_db" {
   subnet_cidrs = ["10.120.100.0/24", "10.120.101.0/24"]
 
   tags = {
-    Name    = "aws-testing-cff474a1"
-    Project = "aws-testing-cff474a1"
+    Name    = var.project_name
+    Project = var.project_name
   }
 }
 
