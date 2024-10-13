@@ -1,26 +1,26 @@
-variable "vpc-cidr" {
+variable "vpc_cidr" {
   description = "cidr range for the full vpc"
   type        = string
 }
 
-variable "vpn-subnet-cidr" {
+variable "vpn_subnet_cidr" {
   description = "cidr range for the vpn gateway subnet"
   type        = string
 }
 
-variable "vpn-client-cidr" {
+variable "vpn_client_cidr" {
   description = "cidr range for the clients"
   type        = string
 }
 
-variable "vpn-client-provider-arn" {
+variable "vpn_client_provider_arn" {
   description = "arn of the auth provider"
-  type = string
+  type        = string
 }
 
-variable "vpn-selfserve-provider-arn" {
+variable "vpn_selfserve_provider_arn" {
   description = "arn of the self serve provider"
-  type = string
+  type        = string
 }
 
 variable "tags" {

@@ -1,14 +1,8 @@
-resource "random_uuid" "default_name" {}
-
-locals {
-  name = coalesce(var.tags.Name, "${random_uuid.default_name.result}")
-}
-
 resource "aws_vpc" "vpc" {
-  cidr_block = var.vpc-cidr
+  cidr_block = var.vpc_cidr
 
   tags = merge(var.tags, {
-    Name = "${local.name}-vpc"
+    Name = "${var.tags.Name}-vpc"
   })
 }
 
@@ -18,7 +12,7 @@ resource "aws_acm_certificate" "vpn" {
   validation_method = "DNS"
 
   tags = merge(var.tags, {
-    Name = "${local.name}-acm-host"
+    Name = "${var.tags.Name}-acm-host"
   })
 
   lifecycle {
@@ -37,7 +31,7 @@ resource "aws_acm_certificate_validation" "vpn" {
 # Create the endpoint itself
 resource "aws_ec2_client_vpn_endpoint" "vpn" {
   description            = "test vpn client endpoint"
-  client_cidr_block      = var.vpn-client-cidr
+  client_cidr_block      = var.vpn_client_cidr
   split_tunnel           = true
   server_certificate_arn = aws_acm_certificate_validation.vpn.certificate_arn
 
@@ -45,8 +39,8 @@ resource "aws_ec2_client_vpn_endpoint" "vpn" {
   # https://aws.amazon.com/blogs/security/authenticate-aws-client-vpn-users-with-aws-single-sign-on/
   authentication_options {
     type                           = "federated-authentication"
-    saml_provider_arn              = var.vpn-client-provider-arn
-    self_service_saml_provider_arn = var.vpn-selfserve-provider-arn
+    saml_provider_arn              = var.vpn_client_provider_arn
+    self_service_saml_provider_arn = var.vpn_selfserve_provider_arn
   }
 
   connection_log_options {
@@ -54,24 +48,24 @@ resource "aws_ec2_client_vpn_endpoint" "vpn" {
   }
 
   tags = merge(var.tags, {
-    Name = "${local.name}-client-vpn"
+    Name = "${var.tags.Name}-client-vpn"
   })
 }
 
 # client vpn subnet
-resource "aws_subnet" "client-vpn" {
+resource "aws_subnet" "vpn" {
   vpc_id            = aws_vpc.vpc.id
   availability_zone = data.aws_availability_zones.available.names[0]
-  cidr_block        = var.vpn-subnet-cidr
+  cidr_block        = var.vpn_subnet_cidr
 
   tags = merge(var.tags, {
-    Name = "${local.name}-client-vpn-subnet"
+    Name = "${var.tags.Name}-client-vpn-subnet"
   })
 }
 
 # associated client vpn subnet and endpoint
-resource "aws_ec2_client_vpn_network_association" "vpn-subnets" {
-  subnet_id              = aws_subnet.client-vpn.id
+resource "aws_ec2_client_vpn_network_association" "vpn" {
+  subnet_id              = aws_subnet.vpn.id
   client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.vpn.id
 
   lifecycle {
@@ -80,7 +74,7 @@ resource "aws_ec2_client_vpn_network_association" "vpn-subnets" {
 }
 
 # Allow vpn access to whole network
-resource "aws_ec2_client_vpn_authorization_rule" "vpn-auth-rule" {
+resource "aws_ec2_client_vpn_authorization_rule" "vpn" {
   client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.vpn.id
   target_network_cidr    = aws_vpc.vpc.cidr_block
   authorize_all_groups   = true
